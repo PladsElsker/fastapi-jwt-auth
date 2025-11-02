@@ -72,9 +72,8 @@ class LoadConfig(BaseModel):
 
     @field_validator('authjwt_cookie_samesite')
     def validate_cookie_samesite(cls, v):
-        for item in v:
-            if item not in ['strict', 'lax', 'none']:
-                raise ValueError("The 'authjwt_cookie_samesite' must be between 'strict', 'lax', 'none'")
+        if v not in ['strict', 'lax', 'none']:
+            raise ValueError("The 'authjwt_cookie_samesite' must be between 'strict', 'lax', 'none'")
         return v
 
     @field_validator('authjwt_csrf_methods')
