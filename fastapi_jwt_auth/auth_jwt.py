@@ -206,7 +206,7 @@ class AuthJWT(AuthConfig):
             secret_key,
             algorithm=algorithm,
             headers=headers,
-        ).decode("utf-8")
+        )
 
     def _has_token_in_denylist_callback(self) -> bool:
         """
@@ -215,7 +215,8 @@ class AuthJWT(AuthConfig):
         return self._token_in_denylist_callback is not None
 
     def _check_token_is_revoked(
-        self, raw_token: dict[str, Union[str, int, bool]]
+        self,
+        raw_token: dict[str, Union[str, int, bool]],
     ) -> None:
         """
         Ensure that AUTHJWT_DENYLIST_ENABLED is true and callback regulated, and then
@@ -229,7 +230,7 @@ class AuthJWT(AuthConfig):
             raise RuntimeError(
                 "A token_in_denylist_callback must be provided via "
                 "the '@AuthJWT.token_in_denylist_loader' if "
-                "authjwt_denylist_enabled is 'True'"
+                "authjwt_denylist_enabled is 'True'",
             )
 
         if self._token_in_denylist_callback.__func__(raw_token):
@@ -576,7 +577,8 @@ class AuthJWT(AuthConfig):
 
         if not cookie:
             raise MissingTokenError(
-                status_code=401, message=f"Missing cookie {cookie_key}"
+                status_code=401,
+                message=f"Missing cookie {cookie_key}",
             )
 
         if self._cookie_csrf_protect and not csrf_token:
@@ -610,7 +612,8 @@ class AuthJWT(AuthConfig):
 
         if token and self.get_raw_jwt(token)["type"] != "access":
             raise AccessTokenRequired(
-                status_code=422, message="Only access tokens are allowed"
+                status_code=422,
+                message="Only access tokens are allowed",
             )
 
     def _verify_jwt_in_request(
@@ -632,13 +635,14 @@ class AuthJWT(AuthConfig):
             raise ValueError("type_token must be between 'access' or 'refresh'")
         if token_from not in ["headers", "cookies", "websocket"]:
             raise ValueError(
-                "token_from must be between 'headers', 'cookies', 'websocket'"
+                "token_from must be between 'headers', 'cookies', 'websocket'",
             )
 
         if not token:
             if token_from == "headers":
                 raise MissingTokenError(
-                    status_code=401, message=f"Missing {self._header_name} Header"
+                    status_code=401,
+                    message=f"Missing {self._header_name} Header",
                 )
             if token_from == "websocket":
                 raise MissingTokenError(
@@ -672,7 +676,9 @@ class AuthJWT(AuthConfig):
             self._check_token_is_revoked(raw_token)
 
     def _verified_token(
-        self, encoded_token: str, issuer: str | None = None
+        self,
+        encoded_token: str,
+        issuer: str | None = None,
     ) -> dict[str, Union[str, int, bool]]:
         """
         Verified token and catch all error from jwt package and return decode token
@@ -833,7 +839,10 @@ class AuthJWT(AuthConfig):
         if auth_from == "websocket":
             if websocket:
                 self._verify_and_get_jwt_in_cookies(
-                    "access", websocket, csrf_token, True
+                    "access",
+                    websocket,
+                    csrf_token,
+                    True,
                 )
             else:
                 self._verify_jwt_in_request(token, "access", "websocket", True)
@@ -844,18 +853,23 @@ class AuthJWT(AuthConfig):
                     self._verify_jwt_in_request(self._token, "access", "headers", True)
                 if not self._token and self.jwt_in_cookies:
                     self._verify_and_get_jwt_in_cookies(
-                        "access", self._request, fresh=True
+                        "access",
+                        self._request,
+                        fresh=True,
                     )
             else:
                 if self.jwt_in_headers:
                     self._verify_jwt_in_request(self._token, "access", "headers", True)
                 if self.jwt_in_cookies:
                     self._verify_and_get_jwt_in_cookies(
-                        "access", self._request, fresh=True
+                        "access",
+                        self._request,
+                        fresh=True,
                     )
 
     def get_raw_jwt(
-        self, encoded_token: str | None = None
+        self,
+        encoded_token: str | None = None,
     ) -> dict[str, Union[str, int, bool]] | None:
         """
         this will return the python dictionary which has all of the claims of the JWT that is accessing the endpoint.
